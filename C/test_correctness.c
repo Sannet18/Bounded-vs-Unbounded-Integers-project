@@ -1,28 +1,10 @@
-// test_correctness.c
-//
-// Why this file exists, in terms of the research:
-// Every number in your Pillar 3 crossover sweep comes from
-// bigint_mul_schoolbook (and later, bigint_mul_karatsuba). If either
-// has a silent bug -- a dropped carry, an off-by-one in a loop bound --
-// your timing data is still "valid" in the sense that it measures
-// something real, but it is no longer measuring correct multiplication,
-// and any crossover point you report would be unfalsifiable: a reviewer
-// (or your committee) can't tell you measured the right algorithm.
-// GMP is the trusted reference implementation in this whole project
-// (it's also one of your Tier A benchmarks), so using it to verify your
-// own bignum is the correct and standard move, not a shortcut.
-
 #include <stdio.h>
 #include <gmp.h>
 #include "bigint.h"
 
-// Import a bigint_t's magnitude directly into an mpz_t.
 // mpz_import's -1 order means "least-significant limb first",
-// which matches how you've laid out bigint_t.limbs[0] as the
-// lowest limb -- the same question you asked earlier about
-// bigint_from_int. The sign is applied separately afterward,
-// exactly because mpz_import only reads magnitude, same as your
-// own struct.
+// which matches bigint_t.limbs[0] as the
+// lowest limb
 static void bigint_to_mpz(mpz_t out, const bigint_t *n)
 {
     mpz_import(out, n->len, -1, sizeof(uint64_t), 0, 0, n->limbs);
@@ -61,14 +43,14 @@ static int run_one_test(size_t limbs_a, size_t limbs_b, unsigned int *seed)
 
 int main()
 {
-    unsigned int seed = 42; // fixed seed: reproducible across runs/machines
+    unsigned int seed = 42; // fixed seed: so you can run across different machines
     size_t sizes[] = {1, 2, 3, 4, 8, 16, 32, 64, 128, 256};
     size_t n_sizes = sizeof(sizes) / sizeof(sizes[0]);
 
     int total = 0, passed = 0;
 
     // Square sizes (a and b the same size) -- the common case
-    // your crossover sweep will actually use.
+    // the crossover sweep will actually use.
     for (size_t i = 0; i < n_sizes; i++)
     {
         for (int trial = 0; trial < 20; trial++)
