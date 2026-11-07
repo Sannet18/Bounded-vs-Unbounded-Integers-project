@@ -14,7 +14,16 @@ EOF
 gcc -o /tmp/check_res /tmp/check_res.c
 /tmp/check_res -->
 
-AMD 
+
+
+AMD Machine
+
+CPU(s):                                  32
+Model name:                              AMD Ryzen 9 8940HX with Radeon Graphics
+Thread(s) per core:                      2
+Core(s) per socket:                      16
+Socket(s):                               1
+PRETTY_NAME="Ubuntu 26.04.1 LTS"
 <!-- namespace(implementation='clock_gettime(CLOCK_MONOTONIC)', monotonic=True, adjustable=False, resolution=1e-09) -->
 
 <!-- CLOCK_MONOTONIC resolution: 0 sec, 1 ns -->
