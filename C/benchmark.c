@@ -28,6 +28,9 @@
  *
  * Every size is verified against GMP's mpn_mul_n before it is timed: a fast
  * wrong answer is worthless.
+ * 
+ * make benchmark
+ *  ls -l benchmark   
  */
 
 #define _GNU_SOURCE
