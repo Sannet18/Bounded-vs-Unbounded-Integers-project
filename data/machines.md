@@ -32,3 +32,27 @@ PRETTY_NAME="Ubuntu 26.04.1 LTS"
 <!-- With Java, I used JDK 25, and not 17/21 -->
 <!-- curl -s https://raw.githubusercontent.com/openjdk/jdk/master/src/java.base/share/classes/java/math/BigInteger.java | grep -A1 "KARATSUBA_THRESHOLD\|TOOM_COOK_THRESHOLD" -->
 <!-- Used this to check the thresholds -->
+
+
+
+INTEL machine
+
+gcc version: gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0
+Copyright (C) 2025 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+CPU(s):                                  12
+Model name:                              Intel(R) Core(TM) i5-10500H CPU @ 2.50GHz
+Thread(s) per core:                      2
+Core(s) per socket:                      6
+L1d cache:                               192 KiB (6 instances)
+L2 cache:                                1.5 MiB (6 instances)
+L3 cache:                                12 MiB (1 instance)
+
+<!-- +-- Desired=Unknown/Install/Remove/Purge/Hold
+|+- Status=Not/Inst/Conf-files/Unpacked/halF-conf/Half-inst/trig-aWait/Trig-pend
+||+ Err?=(none)/Reinst-required (Status,Err: uppercase=bad)
+||| Name             Version               Architecture Description
++++-================-=====================-============-==================================================
+ii  libgmp-dev:amd64 2:6.3.0+dfsg-5ubuntu2 amd64        Multiprecision arithmetic library developers tools -->
