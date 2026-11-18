@@ -11,7 +11,7 @@
    other four languages, writing the same CSV schema:
    impl,machine,x,trial,time_ns
 
-   Usage:
+   To run:
      wolframscript -file benchmark.wls <machine_label> <out.csv>
 *)
 

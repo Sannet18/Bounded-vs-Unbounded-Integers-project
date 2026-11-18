@@ -7,10 +7,14 @@ CORE    := bn.c multiply_schoolbook.c multiply_karatsuba.c bigint.c
 HDRS    := bn.h bigint.h
 
 .PHONY: all check bmi2 asm-check clean
-all: benchmark test_bn test_correctness test_correctness_karatsuba
+all: benchmark memory test_bn test_correctness test_correctness_karatsuba
 
 benchmark: $(CORE) benchmark.c $(HDRS)
 	$(CC) $(CFLAGS) -o $@ $(CORE) benchmark.c $(LDLIBS)
+
+# Memory-footprint tool (writes ../data/memory/memory_c.csv).
+memory: $(CORE) memory.c $(HDRS)
+	$(CC) $(CFLAGS) -o $@ $(CORE) memory.c $(LDLIBS)
 
 # Identical build except the compiler may emit BMI2's mulx.
 benchmark_bmi2: $(CORE) benchmark.c $(HDRS)
@@ -37,4 +41,4 @@ asm-check: benchmark benchmark_bmi2
 	@echo "mulx instructions, -mbmi2 build  : $$(objdump -d benchmark_bmi2 | grep -c  '\smulx\s')"
 
 clean:
-	rm -f benchmark benchmark_bmi2 test_bn test_correctness test_correctness_karatsuba
+	rm -f benchmark benchmark_bmi2 memory test_bn test_correctness test_correctness_karatsuba
