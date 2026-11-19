@@ -1,0 +1,127 @@
+pending-experiments report, label: amd-8940hx
+started: 2026-11-19T00:35:51-05:00
+
+==================================================================
+0. MACHINE FACTS (fills: fill-ins for CPU, clock, power plan, versions)
+==================================================================
+kernel: Linux 6.18.33.2-microsoft-standard-WSL2 x86_64
+CPU(s):                                  32
+Model name:                              AMD Ryzen 9 8940HX with Radeon Graphics
+Thread(s) per core:                      2
+L1d cache:                               512 KiB (16 instances)
+L2 cache:                                16 MiB (16 instances)
+L3 cache:                                32 MiB (1 instance)
+BMI2 supported by this CPU: yes
+cpu MHz right now (first 4 cores): 2395.447 2395.447 2395.447 2395.447 
+gcc: gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0
+glibc: ldd (Ubuntu GLIBC 2.43-2ubuntu2.4) 2.43
+GMP: 2:6.3.0+dfsg-5ubuntu2
+python: Python 3.14.4
+java: openjdk version "25.0.4.1" 2026-08-18
+rustc: rustc 1.99.1 (58cf8f9c3 2026-10-13)
+effective clock under load (GHz, dependent-multiply chain): 1.87   <- compare with the CPU's rated boost
+ON AC POWER / power plan: write this down by hand (Windows cannot be read from here).
+
+==================================================================
+1. PLACEHOLDER 1: mul / mulx instruction counts (make asm-check)
+==================================================================
+mul  instructions, default build : 2
+mulx instructions, default build : 0
+mul  instructions, -mbmi2 build  : 2
+mulx instructions, -mbmi2 build  : 0
+
+==================================================================
+2. PLACEHOLDER 2: schoolbook, default vs -mbmi2 (median of 30 trials, ns per multiply)
+==================================================================
+(columns: build, limbs, median_ns, min_ns; builds alternate 3 times to expose drift)
+default-r1 64 6170.1 6044.3
+default-r1 256 98278.6 96959.3
+default-r1 1024 1579498.8 1553090.5
+bmi2-r1 64 6194.5 6047.7
+bmi2-r1 256 97706.4 95933.1
+bmi2-r1 1024 1573171.5 1528514.5
+default-r2 64 6150.1 6010.9
+default-r2 256 98104.8 96104.9
+default-r2 1024 1590567.0 1551568.0
+bmi2-r2 64 6196.5 6079.4
+bmi2-r2 256 98142.4 96880.0
+bmi2-r2 1024 1585810.2 1548026.5
+default-r3 64 6166.3 6029.1
+default-r3 256 98390.8 96224.4
+default-r3 1024 1589858.0 1553158.5
+bmi2-r3 64 6184.2 6037.1
+bmi2-r3 256 98466.1 96883.8
+bmi2-r3 1024 1574131.0 1552925.5
+
+==================================================================
+3. PLACEHOLDER 5: C allocator_bytes at 1, 64 and 65 bits, and glibc version
+==================================================================
+# C / GMP memory footprint. gmp 6.3.0, glibc 2.43, sizeof(mpz_t)=16, sizeof(bigint_t)=32784, sizeof(limb)=8
+impl,bits,bytes,payload_bytes,allocator_bytes
+c_uint64,1,8,8,
+c_bn,1,24,8,40
+gmp_mpz,1,24,8,40
+c_uint64,64,8,8,
+c_bn,64,24,8,40
+gmp_mpz,64,24,8,40
+c_bn,65,32,16,40
+gmp_mpz,65,32,16,40
+
+==================================================================
+4. PLACEHOLDER 7: same-session timing, all languages back to back (can take 10-25 min; leave the PC alone)
+==================================================================
+[C + GMP] running...
+  done
+[Python] running...
+  done
+[Java] running...
+  done
+[Rust] running...
+  done
+[Mathematica] running (Wolfram Engine in WSL)...
+  done
+elapsed: 44 s
+
+Median ns per multiply, same session (rows: bits; columns: implementation):
+    bits      cpython          gmp      gmp_mpn         java    karatsuba  mathematica         rust   schoolbook
+    1024         1674          307          298          595          388          717          537          384
+    8192        54403         9830         9893        32792        15340         9565        19022        24483
+   65536      1527175       188901       197294       877832       453788       180425       454774      1633446
+  131072      4645048       505920       483638      2478328      1383920       491850      1318397      6453196
+
+==================================================================
+5. PLACEHOLDERS 3 and 4: Mathematica overhead scan and 60-66-bit promotion scan
+==================================================================
+Mathematica 15.0.0 for Linux x86 (64-bit) (May 26, 2026)
+--- SCAN 1: overhead change point, bit lengths 262144..524288 step 16384 ---
+bits, median_ns_per_multiply, ByteCount_of_operand
+262144, NumberForm[1.10385*^6, {12, 1}], 34848
+278528, NumberForm[1.0747*^6, {12, 1}], 36896
+294912, NumberForm[1.29325*^6, {12, 1}], 38944
+311296, NumberForm[1.26995*^6, {12, 1}], 40992
+327680, NumberForm[1.4519*^6, {12, 1}], 43040
+344064, NumberForm[1.5104*^6, {12, 1}], 45088
+360448, NumberForm[1.53305*^6, {12, 1}], 47136
+376832, NumberForm[1.5356*^6, {12, 1}], 49184
+393216, NumberForm[1.8124000000000002*^6, {12, 1}], 51232
+409600, NumberForm[1.83205*^6, {12, 1}], 53280
+425984, NumberForm[1.9493*^6, {12, 1}], 55328
+442368, NumberForm[1.98845*^6, {12, 1}], 57376
+458752, NumberForm[2.02985*^6, {12, 1}], 59424
+475136, NumberForm[2.2115*^6, {12, 1}], 61472
+491520, NumberForm[2.43255*^6, {12, 1}], 63520
+507904, NumberForm[2.4635*^6, {12, 1}], 65568
+524288, NumberForm[2.673*^6, {12, 1}], 65616
+--- SCAN 2: promotion boundary, bit lengths 60..66 ---
+bits, MachineIntegerQ, ByteCount, median_ns_per_multiply
+60, True, 16, NumberForm[449.04999999999995, {10, 1}]
+61, True, 16, NumberForm[420.55, {10, 1}]
+62, True, 16, NumberForm[442.95000000000005, {10, 1}]
+63, True, 16, NumberForm[432.5, {10, 1}]
+64, False, 48, NumberForm[460.4, {10, 1}]
+65, False, 56, NumberForm[440.9, {10, 1}]
+66, False, 56, NumberForm[440.25, {10, 1}]
+(Mathematica machine integers are signed 64-bit, so the boundary is expected at 63/64 bits.)
+
+finished: 2026-11-19T00:37:00-05:00
+Report saved to: /home/saint/bignum-research/results/pending_amd-8940hx.txt

@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# run_pending runs every pending experiment for the paper on THIS machine
+# run_pending -- runs every pending experiment for the paper on THIS machine
 # and save ONE text file, with a section per RESULT PENDING placeholder.
 #
 #   bash experiments/run_pending.sh <machine-label> [--skip-same]
 #   e.g.  bash experiments/run_pending.sh amd-8940hx
 #         bash experiments/run_pending.sh intel-xxxx --skip-same
 #
-# Run it from inside WSL. Before the AMD run: plug the laptop in and set the
+# Run it from inside WSL (Ubuntu), not PowerShell. Before the AMD run: plug the laptop in and set the
 # Windows power mode to "Best performance", and close other programs.
 # Anything not installed (Java, Rust, wolframscript...) is skipped and noted.
 # Output: results/pending_<label>.txt   (paste it back, or send the file)
@@ -34,7 +34,7 @@ run()  { "$@" 2>&1 | tee -a "$OUT"; }
 say "pending-experiments report, label: $LABEL"
 say "started: $(date -Is)"
 
-# 0. machine facts 
+# ---- 0. machine facts ----------------------------------------------------
 sec "0. MACHINE FACTS (fills: fill-ins for CPU, clock, power plan, versions)"
 say "kernel: $(uname -srm)"
 have lscpu && lscpu | grep -E "Model name|^CPU\(s\)|Thread|MHz|max MHz|min MHz|L1d|L2|L3" | tee -a "$OUT"
@@ -46,15 +46,18 @@ say "GMP: $(dpkg-query -W -f='${Version}' libgmp-dev 2>/dev/null || echo 'not fo
 have python3 && say "python: $(python3 --version 2>&1)"
 have java && say "java: $(java -version 2>&1 | grep -v Picked | head -1)"
 have rustc && say "rustc: $(rustc --version)"
+if have gcc && gcc -O2 -o "$TMP/clk" "$HERE/clock_estimate.c" 2>/dev/null; then
+  say "effective clock under load (GHz, dependent-multiply chain): $("$TMP/clk")   <- compare with the CPU's rated boost"
+fi
 say "ON AC POWER / power plan: write this down by hand (Windows cannot be read from here)."
 
-# 1. asm-check 
+# ---- 1. asm-check ----------------------------------------------------------
 sec "1. PLACEHOLDER 1: mul / mulx instruction counts (make asm-check)"
 if have gcc && have objdump && have make; then
   ( cd "$CD" && make asm-check 2>&1 ) | tee -a "$OUT"
 else say "SKIPPED: need gcc, make and objdump (sudo apt install build-essential binutils)"; fi
 
-# 2. default vs -mbmi2 
+# ---- 2. default vs -mbmi2 ----------------------------------------------------
 sec "2. PLACEHOLDER 2: schoolbook, default vs -mbmi2 (median of 30 trials, ns per multiply)"
 if have gcc; then
   CORE="$CD/bn.c $CD/multiply_schoolbook.c $CD/multiply_karatsuba.c $CD/bigint.c"
@@ -68,7 +71,7 @@ if have gcc; then
   fi
 else say "SKIPPED: no gcc"; fi
 
-# 3. allocator bytes 
+# ---- 3. allocator bytes ------------------------------------------------------
 sec "3. PLACEHOLDER 5: C allocator_bytes at 1, 64 and 65 bits, and glibc version"
 if have gcc; then
   if ( cd "$CD" && make memory >/dev/null 2>&1 && ./memory "$TMP/mem_c.csv" >/dev/null 2>&1 ); then
@@ -78,7 +81,7 @@ if have gcc; then
   else say "FAILED to build/run C memory tool (run: cd C && make memory)"; fi
 else say "SKIPPED: no gcc"; fi
 
-# 4. same-session five-language run 
+# ---- 4. same-session five-language run ----------------------------------------
 if [ "$SKIP_SAME" = 1 ]; then
   sec "4. PLACEHOLDER 7: same-session timing -- SKIPPED (--skip-same)"
 else
@@ -100,11 +103,10 @@ else
       BIN="$(ls target/release/ | grep -v '\.d$' | grep -vE '^(build|deps|examples|incremental|memory)$' | head -1)" && \
       ./target/release/"$BIN" sizes "$L" "$S/same_${LABEL}_rust.csv" ) >/dev/null 2>&1 && say "  done" || say "  FAILED"
   else say "[Rust] SKIPPED (not installed)"; fi
-  if have wolframscript.exe && [ -n "$MD" ]; then
-    say "[Mathematica] running via Windows..."
-    wolframscript.exe -file "$(wslpath -w "$MD/benchmark.wls")" "$L" "$(wslpath -w "$S/same_${LABEL}_mathematica.csv")" >/dev/null 2>&1 && say "  done" || say "  FAILED"
-  else say "[Mathematica] not reachable from WSL. Right after this script ends, in PowerShell run:"
-    say "    wolframscript -file mathematica\\benchmark.wls same-${LABEL} data\\pending\\same_${LABEL}_mathematica.csv"; fi
+  if have wolframscript && [ -n "$MD" ]; then
+    say "[Mathematica] running (Wolfram Engine in WSL)..."
+    wolframscript -file "$MD/benchmark.wls" "$L" "$S/same_${LABEL}_mathematica.csv" >/dev/null 2>&1 && say "  done" || say "  FAILED (license or kernel problem)"
+  else say "[Mathematica] wolframscript not found in WSL: SKIPPED"; fi
   say "elapsed: $(( $(date +%s) - START )) s"
   say ""
   say "Median ns per multiply, same session (rows: bits; columns: implementation):"
@@ -123,14 +125,12 @@ for b in want:
 PY
 fi
 
-# 5. Mathematica scans 
+# ---- 5. Mathematica scans ---------------------------------------------------------
 sec "5. PLACEHOLDERS 3 and 4: Mathematica overhead scan and 60-66-bit promotion scan"
-if have wolframscript.exe && [ -n "$MD" ]; then
-  wolframscript.exe -file "$(wslpath -w "$MD/pending_scans.wls")" 2>&1 | tr -d '\r' | tee -a "$OUT"
+if have wolframscript && [ -n "$MD" ]; then
+  wolframscript -file "$MD/pending_scans.wls" 2>&1 | tee -a "$OUT"
 else
-  say "NOT RUN from WSL (wolframscript.exe not reachable). In PowerShell, from the project folder, run:"
-  say "  wolframscript -file mathematica\\pending_scans.wls"
-  say "and paste its output into the reply."
+  say "SKIPPED: wolframscript not found in WSL."
 fi
 
 say ""; say "finished: $(date -Is)"
