@@ -1,5 +1,5 @@
 pending-experiments report, label: intel-i5-10500h
-started: 2026-11-18T18:15:36-05:00
+started: 2026-11-19T00:38:44-05:00
 
 ==================================================================
 0. MACHINE FACTS (fills: fill-ins for CPU, clock, power plan, versions)
@@ -14,15 +14,15 @@ L3 cache:                                12 MiB (1 instance)
 BMI2 supported by this CPU: yes
 cpu MHz right now (first 4 cores): 2496.007 2496.007 2496.007 2496.007 
 gcc: gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0
-glibc: ldd (Ubuntu GLIBC 2.43-2ubuntu2.4) 2.43
+glibc: ldd (Ubuntu GLIBC 2.43-2ubuntu2.7) 2.43
 GMP: 2:6.3.0+dfsg-5ubuntu2
 python: Python 3.14.4
+effective clock under load (GHz, dependent-multiply chain): 4.13   <- compare with the CPU's rated boost
 ON AC POWER / power plan: write this down by hand (Windows cannot be read from here).
 
 ==================================================================
 1. PLACEHOLDER 1: mul / mulx instruction counts (make asm-check)
 ==================================================================
-cc -O2 -Wall -Wextra -mbmi2 -o benchmark_bmi2 bn.c multiply_schoolbook.c multiply_karatsuba.c bigint.c benchmark.c -lgmp -ldl
 mul  instructions, default build : 2
 mulx instructions, default build : 0
 mul  instructions, -mbmi2 build  : 2
@@ -32,24 +32,24 @@ mulx instructions, -mbmi2 build  : 0
 2. PLACEHOLDER 2: schoolbook, default vs -mbmi2 (median of 30 trials, ns per multiply)
 ==================================================================
 (columns: build, limbs, median_ns, min_ns; builds alternate 3 times to expose drift)
-default-r1 64 3581.0 3524.8
-default-r1 256 51567.4 51072.1
-default-r1 1024 785850.0 767850.0
-bmi2-r1 64 3568.3 3457.4
-bmi2-r1 256 50641.9 49851.2
-bmi2-r1 1024 796000.0 770650.0
-default-r2 64 3579.2 3521.7
-default-r2 256 51589.5 51107.0
-default-r2 1024 799325.0 779200.0
-bmi2-r2 64 3562.5 3433.9
-bmi2-r2 256 51433.7 50004.7
-bmi2-r2 1024 795225.0 777200.0
-default-r3 64 3564.1 3431.9
-default-r3 256 51902.3 51251.2
-default-r3 1024 803375.0 788400.0
-bmi2-r3 64 3598.4 3518.8
-bmi2-r3 256 51819.8 51048.8
-bmi2-r3 1024 804075.0 790200.0
+default-r1 64 3857.9 3797.4
+default-r1 256 54909.2 53558.1
+default-r1 1024 859499.0 832949.0
+bmi2-r1 64 4010.5 3796.7
+bmi2-r1 256 75045.3 61341.8
+bmi2-r1 1024 1031098.8 925799.0
+default-r2 64 4479.5 4255.6
+default-r2 256 62195.3 60041.8
+default-r2 1024 1190873.5 930648.5
+bmi2-r2 64 6329.0 4292.5
+bmi2-r2 256 69649.9 61776.7
+bmi2-r2 1024 953124.0 936899.0
+default-r3 64 4539.3 4240.6
+default-r3 256 70230.2 59818.5
+default-r3 1024 949824.0 905249.0
+bmi2-r3 64 3987.5 3800.9
+bmi2-r3 256 56039.5 54904.6
+bmi2-r3 1024 841774.0 810049.0
 
 ==================================================================
 3. PLACEHOLDER 5: C allocator_bytes at 1, 64 and 65 bits, and glibc version
@@ -74,23 +74,20 @@ gmp_mpz,65,32,16,40
   done
 [Java] SKIPPED (not installed)
 [Rust] SKIPPED (not installed)
-[Mathematica] not reachable from WSL. Right after this script ends, in PowerShell run:
-    wolframscript -file mathematica\benchmark.wls same-intel-i5-10500h data\pending\same_intel-i5-10500h_mathematica.csv
+[Mathematica] wolframscript not found in WSL: SKIPPED
 elapsed: 10 s
 
 Median ns per multiply, same session (rows: bits; columns: implementation):
     bits      cpython          gmp      gmp_mpn    karatsuba   schoolbook
-    1024         1222          147          140          215          213
-    8192        38567         4659         4632         8251        13066
-   65536      1101750        95325        95350       241500       785925
-  131072      3304572       250600       250150       734350      3163100
+    1024         1287          161          156          237          236
+    8192        40187         5201         5119         9173        14579
+   65536      1199181       102550       102600       265974       854224
+  131072      3789693       265050       261800       768349      3273696
 
 ==================================================================
 5. PLACEHOLDERS 3 and 4: Mathematica overhead scan and 60-66-bit promotion scan
 ==================================================================
-NOT RUN from WSL (wolframscript.exe not reachable). In PowerShell, from the project folder, run:
-  wolframscript -file mathematica\pending_scans.wls
-and paste its output into the reply.
+SKIPPED: wolframscript not found in WSL.
 
-finished: 2026-11-18T18:15:49-05:00
+finished: 2026-11-19T00:39:00-05:00
 Report saved to: /home/sannet/bignum-research-intel/Bounded-vs-Unbounded-Integers-project/results/pending_intel-i5-10500h.txt
