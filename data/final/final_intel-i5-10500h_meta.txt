@@ -1,0 +1,23 @@
+final-dataset metadata, label: intel-i5-10500h
+started: 2026-11-20T12:28:36-05:00
+Model name:                              Intel(R) Core(TM) i5-10500H CPU @ 2.50GHz
+gcc: gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0
+glibc: ldd (Ubuntu GLIBC 2.43-2ubuntu2.7) 2.43
+GMP: 2:6.3.0+dfsg-5ubuntu2
+python: Python 3.14.4
+karatsuba leaf for C sizes runs: 16 limbs
+clock at start: 4.25 GHz
+correctness tests: PASSED
+c_sizes: done in 2 s
+clock after c_sizes: 4.27 GHz
+c_threshold: done in 1 s
+clock after c_threshold: 4.18 GHz
+c_crossover: done in 13 s
+clock after c_crossover: 4.15 GHz
+python_sizes: done in 7 s
+clock after python_sizes: 4.14 GHz
+Java: SKIPPED (not installed)
+Rust: SKIPPED (not installed or build failed)
+Mathematica: SKIPPED (wolframscript not available)
+finished: 2026-11-20T12:29:18-05:00   total 35 s
+clock range over the whole run: 4.14 - 4.27 GHz
